@@ -2182,6 +2182,14 @@ const AwardPage = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      <div className="max-w-6xl mx-auto px-8 pb-8">
+        <NextActions onNavigate={onNavigate} title="Eksplorasi lainnya" actions={[
+          ['perusahaan', 'Data Perusahaan', '🏢'],
+          ['transparansi', 'Transparansi Publik', '🗺'],
+          ['dashboard', 'Kembali ke Dashboard', '📊'],
+        ]} />
+      </div>
     </div>
   );
 };
@@ -2252,7 +2260,7 @@ const NotifikasiPage = ({ onNavigate }) => {
 const PengaturanPage = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('profil');
   const [form, setForm] = useState({
-    nama: 'Muhammad Habib Algifari, S.Kom., M.T.I.',
+    nama: 'Muhammad Habib Algifari, S.T., M.T.',
     nip: '198912345678910001',
     jabatan: 'Kepala Bidang Kerjasama & Investasi',
     email: 'm.habib@baperida.bandarlampungkota.go.id',
