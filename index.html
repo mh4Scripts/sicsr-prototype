@@ -280,9 +280,15 @@ const LandingPage = ({ onNavigate }) => {
               <h1 className="text-5xl font-bold text-ink leading-tight">Transparansi CSR</h1>
               <h1 className="text-5xl font-bold text-ink italic leading-tight">Kota Bandar Lampung</h1>
               <p className="text-ink/80 mt-6 max-w-md">Pantau realisasi program CSR perusahaan di seluruh wilayah kota secara real-time dan transparan.</p>
-              <div className="flex gap-3 mt-8">
+              <div className="flex gap-3 mt-8 flex-wrap">
                 <Btn onClick={() => onNavigate('transparansi')} variant="primary">Jelajahi Peta →</Btn>
                 <Btn onClick={() => onNavigate('transparansi')} variant="cream">Lihat Laporan</Btn>
+              </div>
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] text-ink/60 uppercase tracking-wider font-bold">Demo Cepat:</span>
+                <button onClick={() => onNavigate('dashboard')} className="text-xs px-2.5 py-1 bg-white/80 border border-blue/30 rounded-full text-blue font-semibold hover:bg-white transition">→ Dashboard Admin</button>
+                <button onClick={() => onNavigate('dashboard-pt')} className="text-xs px-2.5 py-1 bg-white/80 border border-blue/30 rounded-full text-blue font-semibold hover:bg-white transition">→ Dashboard Perusahaan</button>
+                <button onClick={() => onNavigate('award')} className="text-xs px-2.5 py-1 bg-white/80 border border-blue/30 rounded-full text-blue font-semibold hover:bg-white transition">→ CSR Award</button>
               </div>
             </div>
             <div className="hidden md:block">
@@ -606,6 +612,7 @@ const ALL_PROGRAMS = [
 ];
 
 const KatalogProgramPage = ({ onNavigate }) => {
+  const { show } = useToast();
   const [filter, setFilter] = useState('Semua');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('default');
@@ -637,7 +644,7 @@ const KatalogProgramPage = ({ onNavigate }) => {
               <h1 className="text-3xl font-bold text-ink">Katalog Program</h1>
               <p className="text-sm text-muted mt-1">{filtered.length} program · {ALL_PROGRAMS.length - filtered.length} terfilter</p>
             </div>
-            <Btn onClick={() => alert('Buka form tambah program')} variant="primary">+ Program Baru</Btn>
+            <Btn onClick={() => show('Form tambah program akan terbuka — belum aktif di prototype')} variant="primary">+ Program Baru</Btn>
           </div>
 
           {/* Filter bar */}
@@ -742,7 +749,9 @@ const DetailProgramPage = ({ onNavigate }) => {
       setWizardOpen(false);
       setStep(1);
       setForm({ contribution: [], target: '', budget: '', timeline: '', pic: '', notes: '' });
-    }, 800);
+      // Redirect ke Monitoring untuk melihat progress
+      onNavigate('monitoring');
+    }, 1200);
   };
 
   return (
@@ -772,7 +781,7 @@ const DetailProgramPage = ({ onNavigate }) => {
               <p className="text-ink mt-4 text-sm">📍 Kec. Tanjung Karang Pusat · 🎯 200 siswa · 📅 Tahun ajaran 2026/2027</p>
             </div>
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <Btn variant="ghost" onClick={() => alert('Edit form akan terbuka')}>Edit Program</Btn>
+              <Btn variant="ghost" onClick={() => show('Form edit program akan terbuka — belum aktif di prototype')}>Edit Program</Btn>
               <Btn variant="primary" onClick={() => setWizardOpen(true)}>+ Buat Letter of Intent</Btn>
             </div>
           </div>
@@ -1255,20 +1264,41 @@ const DashboardPerusahaan = ({ onNavigate }) => {
 };
 
 /* ============================================================
+   NEXT ACTIONS - contextual page suggestions (kurangi dead-end)
+   ============================================================ */
+const NextActions = ({ title = 'Lanjut ke', actions = [], onNavigate }) => (
+  <div className="bg-gradient-to-r from-blue-light/30 to-cream/30 border border-blue-light rounded-xl p-5 mt-6">
+    <div className="flex items-center gap-2 mb-3">
+      <span className="text-lg">➡️</span>
+      <p className="text-xs font-bold text-blue uppercase tracking-wider">{title}</p>
+    </div>
+    <div className="flex flex-wrap gap-2">
+      {actions.map(([key, label, icon], i) => (
+        <button key={i} onClick={() => onNavigate(key)}
+          className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-blue-light hover:border-blue hover:shadow-soft transition-all text-sm font-semibold text-ink">
+          <span>{icon}</span> <span>{label}</span>
+          <span className="text-blue">→</span>
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+/* ============================================================
    SHARED: Admin Sidebar
    ============================================================ */
 const AdminSidebar = ({ onNavigate, activeKey }) => {
   const menu = [
-    ['📊', 'Dashboard', 'dashboard'],
-    ['🏢', 'Perusahaan', 'perusahaan'],
-    ['📋', 'Katalog Program', 'katalog-admin'],
-    ['🤝', 'Matchmaking', 'matchmaking'],
-    ['📄', 'MoU & PKS', 'mou'],
-    ['📈', 'Monitoring', 'monitoring'],
-    ['📉', 'Laporan', 'laporan'],
-    ['🏆', 'CSR Award', 'award'],
-    ['🔔', 'Notifikasi', 'notifikasi'],
-    ['⚙️', 'Pengaturan', 'pengaturan'],
+    ['📊', 'Dashboard', 'dashboard', '3'],
+    ['🏢', 'Perusahaan', 'perusahaan', ''],
+    ['📋', 'Katalog Program', 'katalog-admin', '4'],
+    ['🤝', 'Matchmaking', 'matchmaking', '5'],
+    ['📄', 'MoU & PKS', 'mou', ''],
+    ['📈', 'Monitoring', 'monitoring', ''],
+    ['📉', 'Laporan', 'laporan', '6'],
+    ['🏆', 'CSR Award', 'award', '7'],
+    ['🔔', 'Notifikasi', 'notifikasi', ''],
+    ['⚙️', 'Pengaturan', 'pengaturan', ''],
   ];
   return (
     <aside className="w-56 bg-softbg border-r border-line p-4 flex-shrink-0">
@@ -1277,13 +1307,27 @@ const AdminSidebar = ({ onNavigate, activeKey }) => {
         <p className="text-[10px] text-muted uppercase tracking-wider mt-1">Baperida Admin</p>
       </div>
       <nav className="space-y-1">
-        {menu.map(([icon, label, key], i) => (
-          <button key={i} onClick={() => onNavigate(key)}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm transition-colors ${activeKey === key ? 'bg-blue-light text-ink font-semibold' : 'text-muted hover:bg-white hover:text-ink'}`}>
-            <span className="text-base">{icon}</span> <span>{label}</span>
-          </button>
-        ))}
+        {menu.map(([icon, label, key, shortcut], i) => {
+          const active = activeKey === key;
+          return (
+            <button key={i} onClick={() => onNavigate(key)}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm transition-all group relative ${active ? 'bg-blue-light text-ink font-semibold shadow-soft' : 'text-muted hover:bg-white hover:text-ink'}`}>
+              {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue rounded-r"></span>}
+              <span className="text-base">{icon}</span>
+              <span className="flex-1">{label}</span>
+              {shortcut && <kbd className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-bold ${active ? 'bg-white text-blue' : 'bg-white/60 text-hint group-hover:bg-softbg group-hover:text-muted'}`}>{shortcut}</kbd>}
+            </button>
+          );
+        })}
       </nav>
+      <div className="mt-6 pt-4 border-t border-line">
+        <p className="text-[9px] font-bold text-muted uppercase tracking-wider mb-2">Shortcut</p>
+        <div className="text-[10px] text-muted space-y-1">
+          <p><kbd className="font-mono bg-white px-1 border border-line rounded">T</kbd> Tour Mode</p>
+          <p><kbd className="font-mono bg-white px-1 border border-line rounded">H</kbd> Beranda</p>
+          <p><kbd className="font-mono bg-white px-1 border border-line rounded">?</kbd> Bantuan</p>
+        </div>
+      </div>
     </aside>
   );
 };
@@ -1293,6 +1337,7 @@ const AdminSidebar = ({ onNavigate, activeKey }) => {
    ============================================================ */
 const RegistrasiPage = ({ onNavigate }) => {
   const [step, setStep] = useState(1);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     namaPT: 'PT Contoh Perusahaan',
     npwp: '', jenis: 'BUMN', alamat: '', telp: '',
@@ -1303,9 +1348,41 @@ const RegistrasiPage = ({ onNavigate }) => {
   const steps = ['Data Perusahaan', 'PIC & Kontak', 'Verifikasi'];
 
   const handleSubmit = () => {
-    show('Registrasi berhasil! Menunggu verifikasi Baperida (est. 1-3 hari kerja)');
-    setTimeout(() => onNavigate('login'), 800);
+    show('Registrasi berhasil disubmit!');
+    setSubmitted(true);
   };
+
+  if (submitted) {
+    return (
+      <div className="min-h-[720px] bg-white animate-fade-in flex flex-col">
+        <header className="border-b border-line px-6 py-4 flex items-center justify-between">
+          <button onClick={() => onNavigate('landing')} className="font-bold text-blue text-lg">SICSR BL · <span className="text-ink">Daftar Perusahaan</span></button>
+        </header>
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="max-w-md text-center animate-scale-in">
+            <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center text-5xl mx-auto mb-6">✓</div>
+            <h1 className="text-3xl font-bold text-ink">Registrasi Terkirim</h1>
+            <p className="text-muted mt-3">Data perusahaan Anda telah diterima. Baperida akan memverifikasi dokumen dalam <span className="font-semibold text-ink">1-3 hari kerja</span>.</p>
+
+            <div className="bg-softbg rounded-xl p-5 mt-6 text-left">
+              <p className="text-xs font-bold text-blue uppercase tracking-wider mb-3">Langkah Selanjutnya</p>
+              <ol className="space-y-2 text-sm text-ink">
+                <li className="flex gap-2"><span className="font-bold text-blue">1.</span> Cek email <span className="font-semibold">{form.picEmail || 'PIC Anda'}</span> untuk konfirmasi registrasi</li>
+                <li className="flex gap-2"><span className="font-bold text-blue">2.</span> Tunggu email verifikasi dari Baperida</li>
+                <li className="flex gap-2"><span className="font-bold text-blue">3.</span> Setelah disetujui, Anda bisa login dan mulai commit program</li>
+              </ol>
+            </div>
+
+            <div className="flex gap-3 mt-6 justify-center">
+              <Btn variant="ghost" onClick={() => onNavigate('transparansi')}>🗺 Lihat Transparansi</Btn>
+              <Btn variant="primary" onClick={() => onNavigate('landing')}>🏠 Kembali ke Beranda</Btn>
+            </div>
+            <p className="text-xs text-muted mt-6">Nomor referensi: <span className="font-mono text-ink">REG-2026-{Math.floor(Math.random()*9000+1000)}</span></p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[720px] bg-white animate-fade-in">
@@ -1416,7 +1493,7 @@ const RegistrasiPage = ({ onNavigate }) => {
                         <p className="text-xs text-muted">PDF · Maks 5 MB</p>
                       </div>
                     </div>
-                    <Btn variant="ghost" onClick={() => alert('File picker akan terbuka')}>Pilih File</Btn>
+                    <Btn variant="ghost" onClick={() => show('Upload dokumen — fitur aktif di versi production')}>Pilih File</Btn>
                   </div>
                 ))}
               </div>
@@ -1459,6 +1536,7 @@ const ALL_COMPANIES = [
 ];
 
 const PerusahaanPage = ({ onNavigate }) => {
+  const { show } = useToast();
   const [filter, setFilter] = useState('Semua');
   const [search, setSearch] = useState('');
   const filtered = useMemo(() => {
@@ -1479,7 +1557,7 @@ const PerusahaanPage = ({ onNavigate }) => {
               <h1 className="text-3xl font-bold text-ink">Manajemen Perusahaan</h1>
               <p className="text-sm text-muted mt-1">42 perusahaan terdaftar · 38 aktif · 4 menunggu verifikasi</p>
             </div>
-            <Btn variant="primary" onClick={() => alert('Form tambah perusahaan')}>+ Tambah Perusahaan</Btn>
+            <Btn variant="primary" onClick={() => show('Form registrasi manual perusahaan — belum aktif di prototype')}>+ Tambah Perusahaan</Btn>
           </div>
 
           <div className="bg-softbg rounded-xl p-3 flex items-center gap-3 mb-6 border border-line">
@@ -1579,7 +1657,7 @@ const MatchmakingPage = ({ onNavigate }) => {
               <h1 className="text-3xl font-bold text-ink">Forum Matchmaking</h1>
               <p className="text-sm text-muted mt-1">14 program menunggu perusahaan · 3 sesi live hari ini</p>
             </div>
-            <Btn variant="primary" onClick={() => alert('Form sesi baru')}>+ Sesi Baru</Btn>
+            <Btn variant="primary" onClick={() => show('Form buat sesi matchmaking baru — belum aktif')}>+ Sesi Baru</Btn>
           </div>
 
           <div className="border-b border-line mb-6 flex gap-6">
@@ -1645,7 +1723,7 @@ const MatchmakingPage = ({ onNavigate }) => {
                     ))}
                   </div>
 
-                  <Btn variant="primary" className="w-full mt-5" onClick={() => alert('Panel undang perusahaan')}>+ Undang Perusahaan Lain</Btn>
+                  <Btn variant="primary" className="w-full mt-5" onClick={() => show('Panel undang perusahaan — belum aktif di prototype')}>+ Undang Perusahaan Lain</Btn>
                 </div>
               </div>
 
@@ -1665,6 +1743,7 @@ const MatchmakingPage = ({ onNavigate }) => {
    PAGE: MoU & PKS
    ============================================================ */
 const MoUPage = ({ onNavigate }) => {
+  const { show } = useToast();
   const [filterType, setFilterType] = useState('Semua');
   const docs = [
     { type: 'MoU', title: 'PLN UID × Pemkot Bandar Lampung', date: '15 Jul 2026', expiry: '31 Des 2027', value: 'Rp 1.2M', status: 'Aktif', statusVar: 'success' },
@@ -1686,7 +1765,7 @@ const MoUPage = ({ onNavigate }) => {
               <h1 className="text-3xl font-bold text-ink">Dokumen MoU & PKS</h1>
               <p className="text-sm text-muted mt-1">32 dokumen aktif · 5 menunggu tanda tangan · 2 expired</p>
             </div>
-            <Btn variant="primary" onClick={() => alert('Form buat MoU')}>+ Buat MoU</Btn>
+            <Btn variant="primary" onClick={() => show('Form draft MoU akan terbuka — belum aktif')}>+ Buat MoU</Btn>
           </div>
 
           <div className="grid grid-cols-4 gap-4 mb-6">
@@ -1719,7 +1798,7 @@ const MoUPage = ({ onNavigate }) => {
           <div className="space-y-3">
             {filtered.map((d, i) => (
               <button key={i} className="w-full text-left bg-white border border-line rounded-xl p-4 flex items-center gap-4 card-hover"
-                onClick={() => alert('Buka detail dokumen: ' + d.title)}>
+                onClick={() => show(`Buka detail dokumen: ${d.title} — belum aktif di prototype`)}>
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${d.type === 'MoU' ? 'bg-blue text-white' : d.type === 'PKS' ? 'bg-blue-light text-ink' : 'bg-cream text-ink'}`}>📄</div>
                 <div className="flex items-center gap-3 flex-1">
                   <Chip variant={d.type === 'MoU' ? 'blue' : d.type === 'PKS' ? 'bluelight' : 'cream'}>{d.type}</Chip>
@@ -1734,6 +1813,12 @@ const MoUPage = ({ onNavigate }) => {
               </button>
             ))}
           </div>
+
+          <NextActions onNavigate={onNavigate} title="Langkah selanjutnya" actions={[
+            ['matchmaking', 'Forum Matchmaking', '🤝'],
+            ['monitoring', 'Monitoring Program', '📈'],
+            ['laporan', 'Laporan & Analytics', '📉'],
+          ]} />
         </div>
       </main>
     </div>
@@ -1861,6 +1946,7 @@ const LaporanPage = ({ onNavigate }) => {
    PAGE: KATALOG PERUSAHAAN (AI-Recommended)
    ============================================================ */
 const KatalogPTPage = ({ onNavigate }) => {
+  const { show } = useToast();
   const [sortBy, setSortBy] = useState('Rekomendasi');
   const progs = [
     { cat: 'Pendidikan', catVar: 'blue', title: 'Beasiswa SMA Berprestasi', loc: 'Tanjung Karang Pusat', match: 95, gap: 'Rp 180 Jt', deadline: '30 Juli' },
@@ -1889,7 +1975,7 @@ const KatalogPTPage = ({ onNavigate }) => {
             <h2 className="text-2xl font-bold text-ink">12 program relevan dengan fokus CSR Anda</h2>
             <p className="text-xs text-ink italic mt-1">Berdasarkan komitmen sebelumnya: Pendidikan, Elektrifikasi, Pelatihan Digital</p>
           </div>
-          <Btn variant="primary" onClick={() => alert('Lihat detail algoritma AI')}>Lihat rekomendasi</Btn>
+          <Btn variant="primary" onClick={() => show('Algoritma rekomendasi: match score dihitung dari kategori CSR historis × geografis × kapasitas perusahaan')}>Lihat rekomendasi</Btn>
         </div>
 
         <div className="flex items-center justify-between mb-4">
@@ -2015,6 +2101,12 @@ const MonitoringPage = ({ onNavigate }) => {
               </div>
             </div>
           </div>
+
+          <NextActions onNavigate={onNavigate} title="Lanjut ke" actions={[
+            ['laporan', 'Lihat Laporan Lengkap', '📉'],
+            ['detail', 'Detail Program', '📄'],
+            ['dashboard', 'Dashboard', '📊'],
+          ]} />
         </div>
       </main>
     </div>
@@ -2100,12 +2192,12 @@ const AwardPage = ({ onNavigate }) => {
 const NotifikasiPage = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('Semua');
   const all = [
-    { icon: '🎯', bg: 'bg-blue text-white', title: 'Program baru: Beasiswa SMA Berprestasi', body: 'Baperida menambahkan program baru sesuai fokus CSR Anda', time: '2 mnt', unread: true, cat: 'Matchmaking' },
-    { icon: '✓', bg: 'bg-green-500 text-white', title: 'Commit disetujui oleh Baperida', body: 'LoI #LI-2026-0042 untuk Pelatihan Digital Guru telah disetujui', time: '15 mnt', unread: true, cat: 'Sistem' },
-    { icon: '🤝', bg: 'bg-cream text-ink', title: 'Undangan Forum Matchmaking', body: 'Anda diundang ke sesi "Matchmaking Q4" pada 25 April 2026, 10:00', time: '1 jam', unread: true, cat: 'Matchmaking' },
-    { icon: '📄', bg: 'bg-blue-light text-ink', title: 'MoU PLN × Pemkot BL siap tanda tangan', body: 'Dokumen telah diverifikasi dan menunggu tanda tangan pejabat', time: '3 jam', unread: true, cat: 'Sistem' },
-    { icon: '⏰', bg: 'bg-orange-400 text-white', title: 'Reminder: Upload progres Agustus', body: 'Program Elektrifikasi Sekolah Terpencil menunggu laporan progres bulanan', time: '5 jam', unread: false, cat: 'Sistem' },
-    { icon: '🏆', bg: 'bg-tan text-ink', title: 'Peringkat CSR Award naik', body: 'Posisi Anda kini #2 dari 42 perusahaan (sebelumnya #3)', time: 'kemarin', unread: false, cat: 'Sistem' },
+    { icon: '🎯', bg: 'bg-blue text-white', title: 'Program baru: Beasiswa SMA Berprestasi', body: 'Baperida menambahkan program baru sesuai fokus CSR Anda', time: '2 mnt', unread: true, cat: 'Matchmaking', goto: 'detail' },
+    { icon: '✓', bg: 'bg-green-500 text-white', title: 'Commit disetujui oleh Baperida', body: 'LoI #LI-2026-0042 untuk Pelatihan Digital Guru telah disetujui', time: '15 mnt', unread: true, cat: 'Sistem', goto: 'monitoring' },
+    { icon: '🤝', bg: 'bg-cream text-ink', title: 'Undangan Forum Matchmaking', body: 'Anda diundang ke sesi "Matchmaking Q4" pada 25 April 2026, 10:00', time: '1 jam', unread: true, cat: 'Matchmaking', goto: 'matchmaking' },
+    { icon: '📄', bg: 'bg-blue-light text-ink', title: 'MoU PLN × Pemkot BL siap tanda tangan', body: 'Dokumen telah diverifikasi dan menunggu tanda tangan pejabat', time: '3 jam', unread: true, cat: 'Sistem', goto: 'mou' },
+    { icon: '⏰', bg: 'bg-orange-400 text-white', title: 'Reminder: Upload progres Agustus', body: 'Program Elektrifikasi Sekolah Terpencil menunggu laporan progres bulanan', time: '5 jam', unread: false, cat: 'Sistem', goto: 'monitoring' },
+    { icon: '🏆', bg: 'bg-tan text-ink', title: 'Peringkat CSR Award naik', body: 'Posisi Anda kini #2 dari 42 perusahaan (sebelumnya #3)', time: 'kemarin', unread: false, cat: 'Sistem', goto: 'award' },
   ];
   const { show } = useToast();
   const filtered = activeTab === 'Semua' ? all : activeTab === 'Belum Dibaca' ? all.filter(n => n.unread) : all.filter(n => n.cat === activeTab);
@@ -2135,7 +2227,7 @@ const NotifikasiPage = ({ onNavigate }) => {
 
           <div className="space-y-1">
             {filtered.map((n, i) => (
-              <button key={i} className={`w-full text-left flex items-start gap-4 p-4 rounded-lg transition ${n.unread ? 'bg-softbg hover:bg-blue-light/20' : 'hover:bg-softbg'}`}>
+              <button key={i} onClick={() => n.goto && onNavigate(n.goto)} className={`w-full text-left flex items-start gap-4 p-4 rounded-lg transition cursor-pointer ${n.unread ? 'bg-softbg hover:bg-blue-light/30' : 'hover:bg-softbg'}`}>
                 {n.unread && <span className="w-2 h-2 rounded-full bg-blue mt-2 flex-shrink-0"></span>}
                 {!n.unread && <span className="w-2 h-2 flex-shrink-0"></span>}
                 <div className={`w-10 h-10 rounded-full ${n.bg} flex items-center justify-center text-lg flex-shrink-0`}>{n.icon}</div>
@@ -2279,8 +2371,10 @@ const PengaturanPage = ({ onNavigate }) => {
 /* ============================================================
    DEMO CONTROL PANEL (floating)
    ============================================================ */
-const DemoControls = ({ currentPage, onNavigate, persona, setPersona }) => {
-  const [open, setOpen] = useState(false);
+const DemoControls = ({ currentPage, onNavigate, persona, setPersona, externalOpen, setExternalOpen }) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = setExternalOpen !== undefined ? setExternalOpen : setInternalOpen;
   const sections = [
     { title: 'PUBLIK', items: [
       ['landing', '🏠 Landing'],
@@ -2309,24 +2403,59 @@ const DemoControls = ({ currentPage, onNavigate, persona, setPersona }) => {
     ]},
   ];
 
+  const [search, setSearch] = useState('');
+
+  const filterItems = (items) => {
+    if (!search) return items;
+    return items.filter(([key, label]) => label.toLowerCase().includes(search.toLowerCase()) || key.includes(search.toLowerCase()));
+  };
+
+  const totalMatches = search ? sections.reduce((sum, sec) => sum + filterItems(sec.items).length, 0) : 17;
+
   return (
-    <div className="fixed bottom-4 left-4 z-30">
+    <div className="fixed bottom-4 right-4 z-30">
       {open && (
-        <div className="bg-white rounded-2xl shadow-lift border border-line p-4 mb-2 w-72 max-h-[600px] overflow-y-auto animate-scale-in">
-          <p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-3">Demo Navigator · 18 Halaman</p>
-          {sections.map((sec, si) => (
-            <div key={si} className={si > 0 ? 'mt-3 pt-3 border-t border-line' : ''}>
-              <p className="text-[9px] font-bold text-blue uppercase tracking-wider mb-1.5">{sec.title}</p>
-              <div className="space-y-0.5">
-                {sec.items.map(([key, label]) => (
-                  <button key={key} onClick={() => { onNavigate(key); setOpen(false); }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors ${currentPage === key ? 'bg-blue-light text-ink font-semibold' : 'hover:bg-softbg text-ink'}`}>
-                    {label}
-                  </button>
-                ))}
+        <div className="bg-white rounded-2xl shadow-lift border border-line p-4 mb-2 w-80 max-h-[600px] overflow-y-auto animate-scale-in absolute bottom-full right-0 mb-2">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Demo Navigator · {totalMatches} Halaman</p>
+            <button onClick={() => setOpen(false)} className="text-muted hover:text-ink text-lg leading-none">×</button>
+          </div>
+
+          <input
+            type="text"
+            autoFocus
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="🔍  Cari halaman..."
+            className="w-full px-3 py-2 text-xs bg-softbg border border-line rounded-lg mb-3 focus:border-blue focus:bg-white transition"
+          />
+
+          {sections.map((sec, si) => {
+            const filtered = filterItems(sec.items);
+            if (filtered.length === 0) return null;
+            return (
+              <div key={si} className={si > 0 ? 'mt-3 pt-3 border-t border-line' : ''}>
+                <p className="text-[9px] font-bold text-blue uppercase tracking-wider mb-1.5">{sec.title}</p>
+                <div className="space-y-0.5">
+                  {filtered.map(([key, label]) => (
+                    <button key={key} onClick={() => { onNavigate(key); setOpen(false); setSearch(''); }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-all flex items-center justify-between ${currentPage === key ? 'bg-blue text-white font-semibold shadow-soft' : 'hover:bg-softbg text-ink'}`}>
+                      <span>{label}</span>
+                      {currentPage === key && <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded uppercase font-bold">Aktif</span>}
+                    </button>
+                  ))}
+                </div>
               </div>
+            );
+          })}
+
+          {totalMatches === 0 && (
+            <div className="py-6 text-center">
+              <p className="text-xs text-muted">Tidak ada halaman yang cocok</p>
+              <button onClick={() => setSearch('')} className="text-[10px] text-blue font-semibold mt-2 hover:underline">Reset pencarian</button>
             </div>
-          ))}
+          )}
+
           <div className="border-t border-line mt-3 pt-3">
             <p className="text-[9px] font-bold text-blue uppercase tracking-wider mb-1.5">PERSONA AKTIF</p>
             <div className="flex gap-1">
@@ -2339,6 +2468,7 @@ const DemoControls = ({ currentPage, onNavigate, persona, setPersona }) => {
         </div>
       )}
       <button onClick={() => setOpen(!open)}
+        title="Demo Navigator (tekan N)"
         className="bg-ink text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lift hover:scale-110 transition-transform text-lg">
         {open ? '×' : '⚙'}
       </button>
@@ -2347,11 +2477,239 @@ const DemoControls = ({ currentPage, onNavigate, persona, setPersona }) => {
 };
 
 /* ============================================================
+   PAGE META (untuk breadcrumb + title)
+   ============================================================ */
+const PAGE_META = {
+  'landing':       { title: 'Beranda',               area: 'Publik',     areaColor: 'blue' },
+  'login':         { title: 'Masuk',                 area: 'Akses',      areaColor: 'blue' },
+  'registrasi':    { title: 'Daftar Perusahaan',     area: 'Akses',      areaColor: 'cream' },
+  'transparansi':  { title: 'Transparansi Publik',   area: 'Publik',     areaColor: 'bluelight' },
+  'dashboard':     { title: 'Dashboard',             area: 'Baperida',   areaColor: 'blue' },
+  'perusahaan':    { title: 'Manajemen Perusahaan',  area: 'Baperida',   areaColor: 'blue' },
+  'katalog-admin': { title: 'Katalog Program',       area: 'Baperida',   areaColor: 'blue' },
+  'matchmaking':   { title: 'Forum Matchmaking',     area: 'Baperida',   areaColor: 'blue' },
+  'mou':           { title: 'MoU & PKS',             area: 'Baperida',   areaColor: 'blue' },
+  'monitoring':    { title: 'Monitoring Program',    area: 'Baperida',   areaColor: 'blue' },
+  'laporan':       { title: 'Laporan & Analytics',   area: 'Baperida',   areaColor: 'blue' },
+  'award':         { title: 'CSR Award',             area: 'Baperida',   areaColor: 'cream' },
+  'dashboard-pt':  { title: 'Dashboard Perusahaan',  area: 'Perusahaan', areaColor: 'cream' },
+  'katalog-pt':    { title: 'Katalog (AI-Rec)',      area: 'Perusahaan', areaColor: 'cream' },
+  'detail':        { title: 'Detail Program',        area: 'Program',    areaColor: 'bluelight' },
+  'notifikasi':    { title: 'Notifikasi & Inbox',    area: 'Account',    areaColor: 'tan' },
+  'pengaturan':    { title: 'Pengaturan Profil',     area: 'Account',    areaColor: 'tan' },
+};
+
+/* Linear demo tour untuk rapat - keyboard arrow navigation */
+const DEMO_TOUR = [
+  'landing', 'transparansi', 'login',
+  'dashboard', 'perusahaan', 'katalog-admin', 'detail',
+  'matchmaking', 'mou', 'monitoring', 'laporan', 'award',
+  'dashboard-pt', 'katalog-pt', 'notifikasi', 'pengaturan'
+];
+
+/* ============================================================
+   FLOATING NAV HELPER (kiri bawah, always visible)
+   - Back button (go to previous page in history)
+   - Home button (langsung ke landing)
+   - Current page indicator
+   ============================================================ */
+const FloatingNav = ({ history, onBack, onHome, currentPage, onPrev, onNext, tourMode, setTourMode }) => {
+  const meta = PAGE_META[currentPage] || { title: 'Halaman', area: '' };
+  const tourIdx = DEMO_TOUR.indexOf(currentPage);
+  const canPrev = tourIdx > 0;
+  const canNext = tourIdx < DEMO_TOUR.length - 1 && tourIdx !== -1;
+
+  return (
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-white rounded-full shadow-lift border border-line px-2 py-2">
+      <button
+        onClick={onBack}
+        disabled={history.length <= 1}
+        className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-softbg disabled:opacity-30 disabled:cursor-not-allowed"
+        title="Kembali (Esc)">
+        <span className="text-ink text-lg">←</span>
+      </button>
+      <button
+        onClick={onHome}
+        className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-softbg"
+        title="Beranda (H)">
+        <span className="text-ink text-lg">🏠</span>
+      </button>
+
+      <div className="w-px h-6 bg-line mx-1"></div>
+
+      {tourMode ? (
+        <>
+          <button
+            onClick={onPrev}
+            disabled={!canPrev}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-softbg disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Halaman sebelumnya (←)">
+            <span className="text-blue text-lg">◀</span>
+          </button>
+          <div className="px-3 text-center min-w-[140px]">
+            <p className="text-[9px] font-bold text-blue uppercase tracking-wider">Tour · {tourIdx + 1}/{DEMO_TOUR.length}</p>
+            <p className="text-xs font-semibold text-ink truncate">{meta.title}</p>
+          </div>
+          <button
+            onClick={onNext}
+            disabled={!canNext}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-softbg disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Halaman berikutnya (→)">
+            <span className="text-blue text-lg">▶</span>
+          </button>
+          <button
+            onClick={() => setTourMode(false)}
+            className="px-3 py-1 text-[10px] font-semibold text-muted hover:text-ink transition-colors"
+            title="Keluar tour">
+            Keluar
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="px-3 text-center min-w-[140px]">
+            <p className="text-[9px] font-bold text-muted uppercase tracking-wider">{meta.area}</p>
+            <p className="text-xs font-semibold text-ink truncate">{meta.title}</p>
+          </div>
+          <button
+            onClick={() => setTourMode(true)}
+            className="px-3 py-1.5 bg-blue text-white text-xs font-semibold rounded-full hover:bg-blue-dark transition-all"
+            title="Mulai tour demo (T)">
+            ▶ Tour
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+/* ============================================================
+   KEYBOARD SHORTCUT HELP OVERLAY
+   ============================================================ */
+const ShortcutHelp = ({ visible, onClose }) => {
+  if (!visible) return null;
+  return (
+    <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-lift max-w-lg w-full m-4 p-8 animate-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-ink">Keyboard Shortcut</h2>
+          <button onClick={onClose} className="text-muted hover:text-ink text-2xl">×</button>
+        </div>
+        <p className="text-sm text-muted mb-6">Shortcut untuk mempercepat demo di rapat</p>
+        <div className="space-y-3">
+          {[
+            ['H', 'Kembali ke beranda'],
+            ['T', 'Toggle Tour Mode (navigasi linear step-by-step)'],
+            ['← / →', 'Previous / Next (saat Tour Mode aktif)'],
+            ['Esc', 'Kembali ke halaman sebelumnya'],
+            ['N', 'Buka Demo Navigator (daftar semua halaman)'],
+            ['/', 'Buka keyboard shortcut help (halaman ini)'],
+            ['1 – 9', 'Quick jump ke halaman utama'],
+          ].map(([key, desc], i) => (
+            <div key={i} className="flex items-center gap-4 p-3 bg-softbg rounded-lg">
+              <kbd className="px-3 py-1 bg-white border border-line-dark rounded font-mono text-xs font-bold text-ink min-w-[60px] text-center shadow-soft">{key}</kbd>
+              <span className="text-sm text-ink">{desc}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 pt-6 border-t border-line">
+          <p className="text-xs font-bold text-blue uppercase tracking-wider mb-3">QUICK JUMP (1-9)</p>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              ['1', 'Landing'],
+              ['2', 'Login'],
+              ['3', 'Dashboard'],
+              ['4', 'Katalog'],
+              ['5', 'Matchmaking'],
+              ['6', 'Laporan'],
+              ['7', 'Award'],
+              ['8', 'Dashboard PT'],
+              ['9', 'Transparansi'],
+            ].map(([k, p]) => (
+              <div key={k} className="flex items-center gap-2">
+                <kbd className="w-6 h-6 bg-white border border-line-dark rounded font-mono text-[10px] font-bold text-ink flex items-center justify-center shadow-soft">{k}</kbd>
+                <span className="text-xs text-muted">{p}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
    APP ROOT
    ============================================================ */
 const App = () => {
-  const [page, setPage] = useState('landing');
+  const [page, setPageRaw] = useState('landing');
+  const [history, setHistory] = useState(['landing']);
   const [persona, setPersona] = useState('admin');
+  const [tourMode, setTourMode] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [demoNavOpen, setDemoNavOpen] = useState(false);
+
+  // Navigate with history tracking
+  const navigate = (target) => {
+    if (target === page) return;
+    setPageRaw(target);
+    setHistory(prev => [...prev, target]);
+  };
+
+  // Back button - pop last from history
+  const goBack = () => {
+    if (history.length <= 1) return;
+    const newHistory = history.slice(0, -1);
+    setHistory(newHistory);
+    setPageRaw(newHistory[newHistory.length - 1]);
+  };
+
+  // Home - reset history
+  const goHome = () => {
+    setPageRaw('landing');
+    setHistory(['landing']);
+    setTourMode(false);
+  };
+
+  // Tour navigation
+  const tourPrev = () => {
+    const idx = DEMO_TOUR.indexOf(page);
+    if (idx > 0) navigate(DEMO_TOUR[idx - 1]);
+  };
+  const tourNext = () => {
+    const idx = DEMO_TOUR.indexOf(page);
+    if (idx !== -1 && idx < DEMO_TOUR.length - 1) navigate(DEMO_TOUR[idx + 1]);
+  };
+
+  // Quick jump shortcuts (1-9)
+  const quickJumpMap = {
+    '1': 'landing', '2': 'login', '3': 'dashboard', '4': 'katalog-admin',
+    '5': 'matchmaking', '6': 'laporan', '7': 'award', '8': 'dashboard-pt', '9': 'transparansi',
+  };
+
+  // Keyboard handler
+  useEffect(() => {
+    const handler = (e) => {
+      // Ignore when user is typing in input/textarea
+      if (e.target.matches('input, textarea, select')) return;
+      // Ignore if modal open (let modal handle its own keys)
+      if (helpOpen && e.key !== '/' && e.key !== 'Escape') return;
+
+      if (e.key === 'h' || e.key === 'H') { e.preventDefault(); goHome(); }
+      else if (e.key === 't' || e.key === 'T') { e.preventDefault(); setTourMode(m => !m); }
+      else if (e.key === '/') { e.preventDefault(); setHelpOpen(h => !h); }
+      else if (e.key === 'n' || e.key === 'N') { e.preventDefault(); setDemoNavOpen(o => !o); }
+      else if (e.key === 'Escape') {
+        if (helpOpen) setHelpOpen(false);
+        else if (demoNavOpen) setDemoNavOpen(false);
+        else goBack();
+      }
+      else if (tourMode && e.key === 'ArrowLeft') { e.preventDefault(); tourPrev(); }
+      else if (tourMode && e.key === 'ArrowRight') { e.preventDefault(); tourNext(); }
+      else if (quickJumpMap[e.key]) { e.preventDefault(); navigate(quickJumpMap[e.key]); }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [history, page, tourMode, helpOpen, demoNavOpen]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -2359,31 +2717,68 @@ const App = () => {
 
   const renderPage = () => {
     switch (page) {
-      case 'landing': return <LandingPage onNavigate={setPage} />;
-      case 'login': return <LoginPage onNavigate={setPage} setPersona={setPersona} />;
-      case 'registrasi': return <RegistrasiPage onNavigate={setPage} />;
-      case 'dashboard': return <DashboardBaperida onNavigate={setPage} />;
-      case 'dashboard-pt': return <DashboardPerusahaan onNavigate={setPage} />;
-      case 'katalog-admin': return <KatalogProgramPage onNavigate={setPage} />;
-      case 'katalog-pt': return <KatalogPTPage onNavigate={setPage} />;
-      case 'detail': return <DetailProgramPage onNavigate={setPage} />;
-      case 'transparansi': return <TransparansiPage onNavigate={setPage} />;
-      case 'perusahaan': return <PerusahaanPage onNavigate={setPage} />;
-      case 'matchmaking': return <MatchmakingPage onNavigate={setPage} />;
-      case 'mou': return <MoUPage onNavigate={setPage} />;
-      case 'laporan': return <LaporanPage onNavigate={setPage} />;
-      case 'monitoring': return <MonitoringPage onNavigate={setPage} />;
-      case 'award': return <AwardPage onNavigate={setPage} />;
-      case 'notifikasi': return <NotifikasiPage onNavigate={setPage} />;
-      case 'pengaturan': return <PengaturanPage onNavigate={setPage} />;
-      default: return <LandingPage onNavigate={setPage} />;
+      case 'landing': return <LandingPage onNavigate={navigate} />;
+      case 'login': return <LoginPage onNavigate={navigate} setPersona={setPersona} />;
+      case 'registrasi': return <RegistrasiPage onNavigate={navigate} />;
+      case 'dashboard': return <DashboardBaperida onNavigate={navigate} />;
+      case 'dashboard-pt': return <DashboardPerusahaan onNavigate={navigate} />;
+      case 'katalog-admin': return <KatalogProgramPage onNavigate={navigate} />;
+      case 'katalog-pt': return <KatalogPTPage onNavigate={navigate} />;
+      case 'detail': return <DetailProgramPage onNavigate={navigate} />;
+      case 'transparansi': return <TransparansiPage onNavigate={navigate} />;
+      case 'perusahaan': return <PerusahaanPage onNavigate={navigate} />;
+      case 'matchmaking': return <MatchmakingPage onNavigate={navigate} />;
+      case 'mou': return <MoUPage onNavigate={navigate} />;
+      case 'laporan': return <LaporanPage onNavigate={navigate} />;
+      case 'monitoring': return <MonitoringPage onNavigate={navigate} />;
+      case 'award': return <AwardPage onNavigate={navigate} />;
+      case 'notifikasi': return <NotifikasiPage onNavigate={navigate} />;
+      case 'pengaturan': return <PengaturanPage onNavigate={navigate} />;
+      default: return <LandingPage onNavigate={navigate} />;
     }
   };
 
   return (
     <ToastProvider>
       {renderPage()}
-      <DemoControls currentPage={page} onNavigate={setPage} persona={persona} setPersona={setPersona} />
+
+      {/* Tour progress bar at top */}
+      {tourMode && (
+        <div className="fixed top-0 left-0 right-0 h-1 bg-softbg z-40">
+          <div className="h-full bg-blue transition-all duration-500"
+            style={{ width: `${((DEMO_TOUR.indexOf(page) + 1) / DEMO_TOUR.length) * 100}%` }}></div>
+        </div>
+      )}
+
+      <FloatingNav
+        history={history}
+        onBack={goBack}
+        onHome={goHome}
+        currentPage={page}
+        onPrev={tourPrev}
+        onNext={tourNext}
+        tourMode={tourMode}
+        setTourMode={setTourMode}
+      />
+
+      <DemoControls
+        currentPage={page}
+        onNavigate={navigate}
+        persona={persona}
+        setPersona={setPersona}
+        externalOpen={demoNavOpen}
+        setExternalOpen={setDemoNavOpen}
+      />
+
+      {/* Help button bottom-right corner (di atas DemoControls) */}
+      <button
+        onClick={() => setHelpOpen(true)}
+        className="fixed bottom-[76px] right-6 z-30 w-9 h-9 rounded-full bg-white shadow-soft border border-line flex items-center justify-center text-sm font-bold text-muted hover:text-ink transition"
+        title="Keyboard shortcut (tekan /)">
+        ?
+      </button>
+
+      <ShortcutHelp visible={helpOpen} onClose={() => setHelpOpen(false)} />
     </ToastProvider>
   );
 };
